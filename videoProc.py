@@ -4,57 +4,13 @@ import time
 import math as m
 import mediapipe as mp
 import matplotlib.pyplot as plt
+import cv2
+
+from colors import*
+from angles import*
 
 
-
-def calculer_angle(xa, ya, xb, yb, xc, yc):
-    # Calcul des longueurs des côtés du triangle
-    cote_ab = m.sqrt((xb - xa)**2 + (yb - ya)**2)
-    cote_bc = m.sqrt((xc - xb)**2 + (yc - yb)**2)
-    cote_ac = m.sqrt((xc - xa)**2 + (yc - ya)**2)
-
-    # Calcul des cosinus de l'angle ABC à l'aide de la loi des cosinus
-    cos_angle_abc = (cote_ab**2 + cote_bc**2 - cote_ac**2) / (2 * cote_ab * cote_bc)
-
-    # Calcul de l'angle en radians
-    angle_radian = m.acos(cos_angle_abc)
-
-    # Conversion de l'angle en radians en degrés
-    angle_degre = m.degrees(angle_radian)
-    return angle_degre
-
-
-
-
-# Fonction pour calculer la distance euclidienne
-def trouverDistance(x1, y1, x2, y2):
-    dist = m.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
-    return dist
-
-# Fonction mathématique qui calcule l'angle
-def trouverAngle(x1, y1, x2, y2):
-    theta = m.acos((y2 - y1) * (-y1) / (m.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) * y1))
-    degre = int(180 / m.pi) * theta
-    return degre
-
-
-# =============================CONSTANTES et INITIALISATIONS=====================================#
-
-# Initialisations des compteurs
-
-
-# Type de police
-police = cv2.FONT_HERSHEY_DUPLEX
 fps=0
-# Couleurs
-noir =(0, 0, 0)
-bleu = (255, 127, 0)
-rouge = (50, 50, 255)
-vert = (127, 255, 0)
-bleu_fonce = (127, 20, 0)
-vert_clair = (127, 233, 100)
-jaune = (0, 255, 255)
-rose = (255, 0, 255)
 
 listDos=[]
 listCou=[]
@@ -63,9 +19,7 @@ listCou=[]
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
 
-def process(nom_fichier):
-    print(nom_fichier)
-    pass
+
 
 # ===============================================================================================#
 
@@ -94,6 +48,12 @@ if __name__ == "__main__":
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         video_sortie = cv2.VideoWriter('res.mp4', fourcc, fps, taille_frame)
 
+        print('script begins')
+        
+        if not cap.isOpened():
+                print("Error: Could not open video.")
+                exit()
+        
         while cap.isOpened():
             '''
             cap.read() retourne un tuple le remier element est success et l'autre element est image : 
@@ -105,6 +65,7 @@ if __name__ == "__main__":
             if not success:
                 print("Images nullex")
                 break
+            
 
 
             fps = cap.get(cv2.CAP_PROP_FPS)
@@ -341,4 +302,4 @@ if __name__ == "__main__":
         cv2.destroyAllWindows()
         return 'res.mp4'
 
-process("slim3.mp4")
+process("correct.mp4")
