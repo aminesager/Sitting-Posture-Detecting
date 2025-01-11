@@ -30,3 +30,7 @@ def trouverAngle(x1, y1, x2, y2):
     theta = m.acos((y2 - y1) * (-y1) / (m.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) * y1))
     degre = int(180 / m.pi) * theta
     return degre
+
+
+
+
