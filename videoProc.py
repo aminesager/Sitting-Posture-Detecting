@@ -5,57 +5,12 @@ import math as m
 import mediapipe as mp
 import matplotlib.pyplot as plt
 
+from colors import*
+from angles import*
+from landmarks import*
 
 
-def calculer_angle(xa, ya, xb, yb, xc, yc):
-    # Calcul des longueurs des côtés du triangle
-    cote_ab = m.sqrt((xb - xa)**2 + (yb - ya)**2)
-    cote_bc = m.sqrt((xc - xb)**2 + (yc - yb)**2)
-    cote_ac = m.sqrt((xc - xa)**2 + (yc - ya)**2)
-
-    # Calcul des cosinus de l'angle ABC à l'aide de la loi des cosinus
-    cos_angle_abc = (cote_ab**2 + cote_bc**2 - cote_ac**2) / (2 * cote_ab * cote_bc)
-
-    # Calcul de l'angle en radians
-    angle_radian = m.acos(cos_angle_abc)
-
-    # Conversion de l'angle en radians en degrés
-    angle_degre = m.degrees(angle_radian)
-    return angle_degre
-
-
-
-
-# Fonction pour calculer la distance euclidienne
-def trouverDistance(x1, y1, x2, y2):
-    dist = m.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
-    return dist
-
-# Fonction mathématique qui calcule l'angle
-def trouverAngle(x1, y1, x2, y2):
-    theta = m.acos((y2 - y1) * (-y1) / (m.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) * y1))
-    degre = int(180 / m.pi) * theta
-    return degre
-
-
-# =============================CONSTANTES et INITIALISATIONS=====================================#
-
-# Initialisations des compteurs
-
-
-# Type de police
-police = cv2.FONT_HERSHEY_DUPLEX
 fps=0
-# Couleurs
-noir =(0, 0, 0)
-bleu = (255, 127, 0)
-rouge = (50, 50, 255)
-vert = (127, 255, 0)
-bleu_fonce = (127, 20, 0)
-vert_clair = (127, 233, 100)
-jaune = (0, 255, 255)
-rose = (255, 0, 255)
-
 listDos=[]
 listCou=[]
 
@@ -63,9 +18,7 @@ listCou=[]
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
 
-def process(nom_fichier):
-    print(nom_fichier)
-    pass
+
 
 # ===============================================================================================#
 
@@ -100,6 +53,12 @@ if __name__ == "__main__":
         else:
             print("video good")
 
+        print('script begins')
+        
+        if not cap.isOpened():
+                print("Error: Could not open video.")
+                exit()
+        
         while cap.isOpened():
             '''
             cap.read() retourne un tuple le remier element est success et l'autre element est image : 
@@ -111,6 +70,7 @@ if __name__ == "__main__":
             if not success:
                 print("Images nullex")
                 break
+            
 
 
             fps = cap.get(cv2.CAP_PROP_FPS)
@@ -140,74 +100,17 @@ if __name__ == "__main__":
             lm = points_cles.pose_landmarks
             lmPose = mp_pose.PoseLandmark
 
-            # Coordonnées des points de repère
-            # Pour le genou gauche
-            ''' 
-            la partie suivante va se porter sur les points de repére :
-                pour le moment ce sont les genous, épaules, oreilles et les hanches
-                tout ça utilisant la biblio mediapipe 
-
-            j'ai simplifié les noms des variables pour qu'ils ne soient pas assez longues
-            x_gg --> genou gauche dans l'axe des x
-            y_gg --> genou droite dans l'axe des y
-            y_ed --> épaule droite dans l'axe des y
-            x_hg --> hanche gauche dans l'axe des x
-            x_od --> oreille droite dans l'axe des x
-            et ainsi de suite 
-            
-            x_gg = int(lm.landmark[lmPose.LEFT_KNEE].x * w)
-            y_gg = int(lm.landmark[lmPose.LEFT_KNEE].y * h)
-            '''
-
-            # Pour le genou droit
-            x_gd = int(lm.landmark[lmPose.RIGHT_KNEE].x * w)
-            y_gd = int(lm.landmark[lmPose.RIGHT_KNEE].y * h)
-
-            # Épaule gauche
-            x_eg = int(lm.landmark[lmPose.LEFT_SHOULDER].x * w)
-            y_eg = int(lm.landmark[lmPose.LEFT_SHOULDER].y * h)
-            # Épaule droite
-            x_ed = int(lm.landmark[lmPose.RIGHT_SHOULDER].x * w)
-            y_ed = int(lm.landmark[lmPose.RIGHT_SHOULDER].y * h)
-            # Oreille gauche
-            x_og = int(lm.landmark[lmPose.LEFT_EAR].x * w)
-            y_og = int(lm.landmark[lmPose.LEFT_EAR].y * h)
-
-            x_od = int(lm.landmark[lmPose.RIGHT_EAR].x * w)
-            y_od = int(lm.landmark[lmPose.RIGHT_EAR].y * h)
-            # Hanche gauche
-            x_hg = int(lm.landmark[lmPose.LEFT_HIP].x * w)
-            y_hg = int(lm.landmark[lmPose.LEFT_HIP].y * h)
-
-            x_hd = int(lm.landmark[lmPose.RIGHT_HIP].x * w) -50
-            y_hd = int(lm.landmark[lmPose.RIGHT_HIP].y * h)
-
-            cv2.circle(image, (x_od, y_od), 3, noir, -1)
-
-            # Calcul des angles du dos et du cou
-            # Tracer les points de repère
-            
-            
+ 
             inclinaison_cou = trouverAngle(x_eg, y_eg, x_og, y_og)
             inclinaison_torse = calculer_angle(x_ed, y_ed, x_hd, y_hd, x_gd, y_gd)
             listCou.append(round(abs(90-inclinaison_cou)))
             listDos.append(round(inclinaison_torse))
             
-            condition1 = inclinaison_torse in range (80,110)
-            condition2 = inclinaison_cou in range (80,110)
+            cv2.circle(image, (x_od, y_od), 3, noir, -1)
             cv2.circle(image, (x_hd, y_hd), 3, rouge, -1)
             cv2.circle(image, (x_ed, y_ed), 3, noir, -1)
             cv2.circle(image, (x_ed, y_ed-100), 3, noir, -1)
             cv2.circle(image, (x_gd, y_gd), 3, noir, -1)
-
-
-
-            """
-            determiner la condition selon laquelle on va deduire la posture correcte
-            inclinaison du cou < à 25 
-            si cette condition est respecté la posture est considérée correcte 
-            """
-            # Déterminer la posture correcte
             
             
             if 80 < inclinaison_torse < 119:
@@ -245,9 +148,8 @@ if __name__ == "__main__":
                 
 
                 # Relier les points
-                '''
-                tracer des traits en rouge pour indiquer la posture incorrecte
-                '''
+                
+                
               
                     
 
@@ -285,66 +187,23 @@ if __name__ == "__main__":
                 print("No landmarks detected.")
                 continue  # Skip this frame
 
-        '''
+        
         print("poucentage correcte = ", a/(a+b)*100,  "%")
         print("poucentage incorrecte = " ,b/(a+b)*100,  "%")
         print("duree correcte = ", ((a+b)/(fps))*(a/(a+1+b))  )
         print("duree incorrecte = ", ((a+b)/(fps))*(b/(a+1+b))  )
-        '''
+        
         ind = []
         for i in range(a+b):
             ind.append(round(i/fps))
 
 
         
-        indices2 = range(len(listCou))
-        plt.figure(figsize=(8, 6))
-        plt.plot(indices2, listCou, marker='.', linestyle='-', color='b', label='Courbe Indices vs listCou')
         
-        # Ajout des titres et labels
-        plt.title('Présentation de la posture cou en fonction du temps et images')
-        plt.xlabel('Frames (images)')
-        plt.ylabel('Valeurs de listCou')
-        ax2 = plt.twiny()
-        ax2.set_xlabel('Temps(s)')
-
-        ax2.set_xticks(ind)
-        ax2.set_xticklabels(ind)
-        limit1 = 90  
-        limit2 = 70 # Example limit values
-        plt.axhline(y=limit1, color='g', linestyle='-', label=f'Limite Max {limit1}')
-        plt.axhline(y=limit2, color='r', linestyle='-', label=f'Tangente horizontale à {limit2}')
-        plt.legend('Posture cou')
-
-        plt.grid(True)
-        plt.show()
-        
-        
-        indices2 = range(len(listCou))
-        plt.figure(figsize=(8, 6))
-        plt.plot(indices2, listDos, marker='.', linestyle='-', color='b', label='Courbe Indices vs Angle')
-        
-        plt.title('Présentation de la posture dos en fonction du temps et images')
-        plt.xlabel('Frames (images)')
-        plt.ylabel('Valeurs de listCou')
-        ax2 = plt.twiny()
-        ax2.set_xlabel('Temps(s)')
-
-        ax2.set_xticks(ind)
-        ax2.set_xticklabels(ind)
-        
-        limit1 = 105
-        limit2 = 60 
-        plt.axhline(y=limit1, color='g', linestyle='-', label='Valeur Max')
-        plt.axhline(y=limit2, color='r', linestyle='-', label='Valeur Min')
-        plt.legend('Posture dos')
-
-        plt.grid(True)
-        plt.show()
         
         
         cap.release()
         cv2.destroyAllWindows()
         return 'res.mp4'
 
-process("slim3.mp4")
+process("correct.mp4")
