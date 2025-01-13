@@ -93,6 +93,12 @@ if __name__ == "__main__":
         # Type de sortie vidéo
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         video_sortie = cv2.VideoWriter('res.mp4', fourcc, fps, taille_frame)
+        
+        if not cap.isOpened():
+            print("Erreur lors de l'ouverture de la video")
+            return
+        else:
+            print("video good")
 
         while cap.isOpened():
             '''
